@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金禧乐珠宝 · 定制计价计算器</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 27 12l-11 17L5 12z' fill='%23C9A24B'/%3E%3Cpath d='M16 3 27 12H5z' fill='%23E4C87E'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap">
+<style>
+:root{
+  --ink:#16110b;          /* 页面底 */
+  --ink-2:#1f1810;        /* 面板底 */
+  --ink-3:#2a2115;        /* 输入底/悬停 */
+  --line:rgba(201,162,75,.16);
+  --line-2:rgba(201,162,75,.32);
+  --gold:#c9a24b;         /* 主强调 */
+  --gold-2:#e4c87e;       /* 亮金 */
+  --ivory:#ede4d0;        /* 正文 */
+  --muted:#a4957a;        /* 次要 */
+  --serif:"Noto Serif SC",serif;
+  --sans:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(1200px 700px at 50% -10%, #241c10 0%, var(--ink) 55%) fixed, var(--ink);
+  color:var(--ivory);
+  font-family:var(--sans);
+  font-weight:300;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+
+/* ===== 顶栏 ===== */
+header.hero{padding:34px 0 20px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .mark{width:38px;height:38px;flex:none}
+.brand .name{font-family:var(--serif);font-weight:700;font-size:21px;letter-spacing:.14em;color:var(--gold-2)}
+.brand .name small{display:block;font-family:var(--sans);font-weight:400;font-size:11px;letter-spacing:.32em;color:var(--muted);margin-top:2px}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.15;margin:26px 0 12px;color:var(--ivory)}
+.hero h1 em{font-style:normal;color:var(--gold-2)}
+.hero p.lead{font-size:15px;color:var(--muted);max-width:56ch}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.chip{border:1px solid var(--line-2);color:var(--gold);border-radius:999px;padding:5px 16px;font-size:14px;letter-spacing:.06em}
+.chip b{color:var(--gold-2);font-weight:600}
+
+/* ===== 主体布局 ===== */
+main.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:22px;padding:30px 0 40px;align-items:start}
+
+/* ===== 输入区 ===== */
+.tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:0}
+.tab{flex:1;text-align:center;padding:12px 8px;cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:10px 10px 0 0;color:var(--muted);font-family:var(--serif);font-size:16px;letter-spacing:.05em;transition:.2s;background:transparent}
+.tab:hover{color:var(--gold-2)}
+.tab.active{color:var(--gold-2);border-color:var(--line-2);background:linear-gradient(180deg,rgba(201,162,75,.10),rgba(201,162,75,0));font-weight:600}
+.tab small{display:block;font-family:var(--sans);font-size:11px;font-weight:300;color:var(--muted);letter-spacing:.06em;margin-top:2px}
+
+.panel{display:none;background:linear-gradient(180deg,rgba(201,162,75,.05),transparent 40%),var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:22px}
+.panel.on{display:block}
+.panel .ptitle{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--gold-2);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.panel .ptitle .num{color:var(--gold);font-weight:500}
+.panel .psub{font-size:12px;color:var(--muted);margin-bottom:18px}
+
+.field{margin-bottom:18px}
+.field label{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ivory);margin-bottom:8px}
+.field label .hint{color:var(--muted);font-size:11px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.in{width:100%;background:var(--ink);border:1px solid var(--line-2);border-radius:10px;padding:11px 14px;color:var(--gold-2);font-family:var(--sans);font-size:16px;font-weight:500;outline:none;transition:.15s}
+.in:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.15)}
+.in::placeholder{color:#6b5f49;font-weight:300}
+.inwrap{position:relative}
+.inwrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}
+
+/* 单选卡片组 */
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.seg3{grid-template-columns:repeat(3,1fr)}
+.seg .opt{border:1px solid var(--line);border-radius:10px;padding:9px 6px;text-align:center;cursor:pointer;font-size:13px;color:var(--ivory);transition:.15s;background:var(--ink)}
+.seg .opt small{display:block;font-size:11px;color:var(--muted);font-weight:300}
+.seg .opt:hover{border-color:var(--line-2)}
+.seg .opt.sel{border-color:var(--gold);background:rgba(201,162,75,.12);color:var(--gold-2)}
+.seg .opt.sel small{color:var(--gold)}
+.seg5{grid-template-columns:repeat(5,1fr)}
+
+/* ===== 结果区 ===== */
+.result{position:sticky;top:20px;background:linear-gradient(160deg,#211910 0%,var(--ink-2) 100%);border:1px solid var(--line-2);border-radius:18px;padding:24px;overflow:hidden}
+.result::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-2),var(--gold))}
+.result h2{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold-2);letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center}
+.result h2 .tot{color:var(--muted);font-size:12px;font-weight:400}
+#chart{width:100%;margin:10px 0 4px;display:flex;flex-direction:column;align-items:center}
+#chart svg{max-width:230px;height:auto}
+.lgwrap{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin-top:4px}
+.lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ivory)}
+.lg .dot{width:8px;height:8px;border-radius:2px;flex:none}
+.lg b{margin-left:auto;color:var(--gold-2);font-weight:500;font-size:12px}
+.rows{margin-top:6px}
+.ritem{display:flex;justify-content:space-between;align-items:baseline;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:13px;color:var(--ivory)}
+.ritem .k{color:var(--muted)}
+.ritem .v{font-family:var(--sans);font-weight:500;color:var(--ivory)}
+.ritem .v i{font-style:normal;color:var(--gold-2);font-weight:600}
+.grand{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;padding:16px;background:rgba(201,162,75,.10);border:1px solid var(--line-2);border-radius:12px}
+.grand .gl{font-family:var(--serif);font-size:14px;color:var(--gold)}
+.grand .gv{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--gold-2)}
+.grand .gv small{font-size:14px;font-weight:500;color:var(--gold);margin-left:2px}
+.note{margin-top:16px;font-size:11px;color:var(--muted);line-height:1.7;border-top:1px dashed var(--line);padding-top:12px}
+
+footer{padding:26px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+footer .frow{display:flex;flex-wrap:wrap;gap:10px 30px;align-items:center}
+footer b{color:var(--gold-2);font-weight:500}
+
+@media (max-width:900px){
+  main.layout{grid-template-columns:1fr}
+  .result{position:static}
+  .seg5{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:520px){
+  .row{grid-template-columns:1fr}
+  .seg{grid-template-columns:repeat(2,1fr)}
+  .seg3{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 3 27 12l-11 17L5 12z" fill="#C9A24B"/>
+        <path d="M16 3 27 12H5z" fill="#E4C87E"/>
+        <circle cx="16" cy="13" r="2.2" fill="#16110b"/>
+      </svg>
+      <div class="name">金禧乐珠宝<small>JIN XI LE JEWELRY · 长沙</small></div>
+    </div>
+    <h1>定制珠宝<em>计价计算器</em></h1>
+    <p class="lead">现场黄金加工 · 专业镶嵌 · 錾刻工艺。输入克重与主石规格，实时预估一件定制首饰的金料、工费与镶嵌成本。</p>
+    <div class="chips">
+      <span class="chip"><b>黄金加工</b> · 按克计价</span>
+      <span class="chip"><b>专业镶嵌</b> · 爪镶/包镶/轨道/钉镶</span>
+      <span class="chip"><b>錾刻工艺</b> · 手工雕花</span>
+    </div>
+  </div>
+</header>
+
+<main class="layout wrap">
+  <!-- 输入区 -->
+  <section class="inputs">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-panel="gold">黄金加工<small>按克 × 金价 + 工费</small></div>
+      <div class="tab" data-panel="set">镶嵌计价<small>主石 + 辅石 + 镶嵌工费</small></div>
+    </div>
+
+    <!-- 黄金加工面板 -->
+    <div class="panel on" id="panel-gold">
+      <div class="ptitle"><span class="num">壹</span>黄金加工计价</div>
+      <p class="psub">克重与金价实时计算；工艺不同，工费不同。</p>
+      <div class="row">
+        <div class="field">
+          <label>当日金价<span class="hint">可按当天行情调整</span></label>
+          <div class="inwrap"><input class="in" id="g-price" type="number" min="0" step="1" value="580"><span class="unit">元/克</span></div>
+        </div>
+        <div class="field">
+          <label>金料克重<span class="hint">裸金重量</span></label>
+          <div class="inwrap"><input class="in" id="g-weight" type="number" min="0" step="0.1" value="12"><span class="unit">克</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>加工工艺<span class="hint">工费按每克计</span></label>
+        <div class="seg seg5" id="g-craft">
+          <div class="opt" data-craft="sujin"><b>素金</b><small>20 元/克</small></div>
+          <div class="opt" data-craft="lasi"><b>拉丝</b><small>40 元/克</small></div>
+          <div class="opt" data-craft="mosha"><b>磨砂</b><small>50 元/克</small></div>
+          <div class="opt sel" data-craft="zhuanke"><b>錾刻</b><small>120 元/克</small></div>
+          <div class="opt" data-craft="diaokong"><b>镂雕</b><small>160 元/克</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 镶嵌计价面板 -->
+    <div class="panel" id="panel-set">
+      <div class="ptitle"><span class="num">贰</span>镶嵌计价</div>
+      <p class="psub">选择主石类型与规格，叠加辅石与镶嵌工艺。</p>
+      <div class="field">
+        <label>主石类型<span class="hint">单价为示例，可按实际核算</span></label>
+        <div class="seg seg5" id="s-main">
+          <div class="opt sel" data-main="lvsongshi"><b>绿松石</b><small>80 元/卡</small></div>
+          <div class="opt" data-main="feicui"><b>翡翠</b><small>200 元/卡</small></div>
+          <div class="opt" data-main="hongbao"><b>红宝石</b><small>400 元/卡</small></div>
+          <div class="opt" data-main="lanbao"><b>蓝宝石</b><small>350 元/卡</small></div>
+          <div class="opt" data-main="zuanshi"><b>钻石</b><small>800 元/卡</small></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>主石重量</label>
+          <div class="inwrap"><input class="in" id="s-weight" type="number" min="0" step="0.1" value="2"><span class="unit">克拉</span></div>
+        </div>
+        <div class="field">
+          <label>辅石碎钻数量<span class="hint">颗数</span></label>
+          <div class="inwrap"><input class="in" id="s-sidecount" type="number" min="0" step="1" value="8"><span class="unit">颗</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>镶嵌工艺<span class="hint">整件工费</span></label>
+        <div class="seg" id="s-mount">
+          <div class="opt sel" data-mount="zhuazhua"><b>爪镶</b><small>150 元</small></div>
+          <div class="opt" data-mount="baoxiang"><b>包镶</b><small>200 元</small></div>
+          <div class="opt" data-mount="guidao"><b>轨道镶</b><small>260 元</small></div>
+          <div class="opt" data-mount="dingxiang"><b>钉镶</b><small>220 元</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 结果区 -->
+  <aside class="result">
+    <h2>计价明细 <span class="tot" id="r-meta">黄金 + 镶嵌</span></h2>
+    <div id="chart"></div>
+    <div class="rows" id="rows"></div>
+    <div class="grand">
+      <span class="gl">综合预估总价</span>
+      <span class="gv"><span id="grand">0</span><small>元</small></span>
+    </div>
+    <p class="note">* 工费与主石单价均为示例参数，可现场按当日金价、料况与工艺难度核定；本工具仅作快速预估。</p>
+  </aside>
+</main>
+
+<footer>
+  <div class="wrap frow">
+    <span><b>金禧乐珠宝</b> · 现场黄金加工 + 专业镶嵌</span>
+    <span>文师傅 · 13 年镶嵌经验</span>
+    <span>长沙万家丽店 · 到店核价</span>
+  </div>
+</footer>
+
+<script>
+/* ===== 状态 ===== */
+var CRAFTS={sujin:20,lasi:40,mosha:50,zhuanke:120,diaokong:160};
+var MAINS={lvsongshi:80,feicui:200,hongbao:400,lanbao:350,zuanshi:800};
+var MOUNTS={zhuazhua:150,baoxiang:200,guidao:260,dingxiang:220};
+var NAMES={
+  sujin:'素金',lasi:'拉丝',mosha:'磨砂',zhuanke:'錾刻',diaokong:'镂雕',
+  lvsongshi:'绿松石',feicui:'翡翠',hongbao:'红宝石',lanbao:'蓝宝石',zuanshi:'钻石',
+  zhuazhua:'爪镶',baoxiang:'包镶',guidao:'轨道镶',dingxiang:'钉镶'
+};
+var state={craft:'zhuanke',main:'lvsongshi',mount:'zhuazhua'};
+
+/* ===== 数字格式化 ===== */
+function fmt(n){return Math.round(n*100)/100;}
+
+/* ===== 取值 ===== */
+function val(id){var v=parseFloat(document.getElementById(id).value);return isNaN(v)||v<0?0:v;}
+
+/* ===== 渲染结果 ===== */
+function render(){
+  var gPrice=val('g-price'),gW=val('g-weight');
+  var goldMaterial=gPrice*gW;
+  var goldCraft=gW*CRAFTS[state.craft];
+  var goldTotal=goldMaterial+goldCraft;
+
+  var mainP=MAINS[state.main],sW=val('s-weight');
+  var mainCost=mainP*sW;
+  var sideCost=val('s-sidecount')*8;      /* 辅石单价示例 8 元/颗 */
+  var setTotal=mainCost+sideCost+MOUNTS[state.mount];
+
+  var grand=goldTotal+setTotal;
+
+  var rows='';
+  rows+=row('金料费',gW+' 克 × '+gPrice+' 元/克',goldMaterial);
+  rows+=row('黄金工费','['+NAMES[state.craft]+'] '+gW+' 克 × '+CRAFTS[state.craft]+' 元/克',goldCraft);
+  rows+=row('主石费','['+NAMES[state.main]+'] '+sW+' 卡 × '+mainP+' 元/卡',mainCost);
+  rows+=row('辅石费',val('s-sidecount')+' 颗 × 8 元/颗',sideCost);
+  rows+=row('镶嵌工费','['+NAMES[state.mount]+']',MOUNTS[state.mount]);
+  document.getElementById('rows').innerHTML=rows;
+  document.getElementById('grand').textContent=fmt(grand);
+
+  renderPie([
+    {name:'金料费',value:goldMaterial},
+    {name:'黄金工费',value:goldCraft},
+    {name:'主石费',value:mainCost},
+    {name:'辅石费',value:sideCost},
+    {name:'镶嵌工费',value:MOUNTS[state.mount]}
+  ]);
+}
+function row(k,d,v){
+  return '<div class="ritem"><span class="k">'+k+'<br><span style="font-size:11px;color:#6b5f49">'+d+'</span></span><span class="v">¥<i>'+fmt(v)+'</i></span></div>';
+}
+
+/* ===== 自包含 SVG 环形图 ===== */
+var PIE_COLORS=['#c9a24b','#8a6d2f','#e4c87e','#6f5b2f','#a98d55'];
+function polar(cx,cy,r,ang){return [cx+r*Math.cos(ang),cy+r*Math.sin(ang)];}
+function arcPath(cx,cy,r0,r1,a0,a1){
+  var large=(a1-a0)>Math.PI?1:0;
+  var p0=polar(cx,cy,r0,a0),p1=polar(cx,cy,r0,a1),q1=polar(cx,cy,r1,a1),q0=polar(cx,cy,r1,a0);
+  return 'M'+p0[0]+','+p0[1]+' A'+r0+','+r0+' 0 '+large+' 1 '+p1[0]+','+p1[1]+
+         ' L'+q1[0]+','+q1[1]+' A'+r1+','+r1+' 0 '+large+' 0 '+q0[0]+','+q0[1]+' Z';
+}
+function renderPie(data){
+  var c=document.getElementById('chart');c.innerHTML='';
+  var total=data.reduce(function(s,d){return s+d.value;},0);
+  var cx=95,cy=90,r0=52,r1=80;
+  var a0=-Math.PI/2;
+  var segs='',legend='';
+  data.forEach(function(d,i){
+    if(d.value<=0)return;
+    var frac=d.value/total;
+    var a1=a0+frac*2*Math.PI;
+    segs+='<path d="'+arcPath(cx,cy,r0,r1,a0,a1)+'" fill="'+PIE_COLORS[i%PIE_COLORS.length]+'" opacity=".94"><title>'+d.name+'：¥'+fmt(d.value)+'（'+Math.round(frac*100)+'%）</title></path>';
+    var mid=(a0+a1)/2, lab=polar(cx,cy,r1+16,mid);
+    legend+='<div class="lg"><span class="dot" style="background:'+PIE_COLORS[i%PIE_COLORS.length]+'"></span><span>'+d.name+'</span><b>¥'+fmt(d.value)+'</b></div>';
+    a0=a1;
+  });
+  c.innerHTML='<svg viewBox="0 0 190 180" width="190" height="180" role="img" aria-label="费用构成环形图">'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r0+'" fill="#16110b"></circle>'+segs+
+    '<text x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle" fill="#a4957a" font-size="10">合计</text>'+
+    '<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle" fill="#e4c87e" font-size="17" font-weight="700">¥'+fmt(total)+'</text></svg>'+
+    '<div class="lgwrap">'+legend+'</div>';
+}
+
+/* ===== 事件 ===== */
+document.querySelectorAll('.in').forEach(function(el){
+  el.addEventListener('input',render);
+});
+function bindSeg(id,key){
+  document.querySelectorAll('#'+id+' .opt').forEach(function(opt){
+    opt.addEventListener('click',function(){
+      document.querySelectorAll('#'+id+' .opt').forEach(function(o){o.classList.remove('sel');});
+      opt.classList.add('sel');
+      state[key]=opt.getAttribute('data-'+key);
+      render();
+    });
+  });
+}
+bindSeg('g-craft','craft');
+bindSeg('s-main','main');
+bindSeg('s-mount','mount');
+
+/* ===== 标签页 ===== */
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    tab.classList.add('active');
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+    document.getElementById('panel-'+tab.getAttribute('data-panel')).classList.add('on');
+  });
+});
+
+render();
+</script>
+</body>
+</html>
